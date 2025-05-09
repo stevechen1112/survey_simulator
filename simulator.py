@@ -384,13 +384,27 @@ class SurveySimulator:
         print(f"可視化和報告已保存至 {output_dir}")
     
     def save_results(self, simulated_data: pd.DataFrame, output_file: str) -> None:
-        """保存模擬數據到文件"""
-        # 確保輸出目錄存在
-        os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
-        
-        # 保存為CSV格式
-        simulated_data.to_csv(output_file, index=False)
-        print(f"模擬數據已保存至 {output_file}")
+        """將模擬數據保存到指定的輸出文件 (CSV 或 XLSX)"""
+        try:
+            _, file_extension = os.path.splitext(output_file)
+            output_dir = os.path.dirname(output_file)
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
+            
+            if file_extension.lower() == '.csv':
+                simulated_data.to_csv(output_file, index=False, encoding='utf-8-sig')
+                print(f"模擬數據已保存至 CSV 文件: {output_file}")
+            elif file_extension.lower() == '.xlsx':
+                simulated_data.to_excel(output_file, index=False, engine='openpyxl')
+                print(f"模擬數據已保存至 XLSX 文件: {output_file}")
+            else:
+                # 默認保存為 CSV，如果副檔名無法識別或不支援
+                default_output_file = os.path.join(output_dir, os.path.basename(output_file).split('.')[0] + '_simulated.csv')
+                simulated_data.to_csv(default_output_file, index=False, encoding='utf-8-sig')
+                print(f"不支援的輸出文件格式。數據已默認保存至 CSV 文件: {default_output_file}")
+                
+        except Exception as e:
+            print(f"保存結果時出錯: {str(e)}")
 
 
 def main():

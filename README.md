@@ -1,10 +1,10 @@
 # 問卷模擬生成工具
 
-基於已有的50位受測者數據，使用AI模型生成額外100位多元受測者的問卷回覆。
+基於已有的受測者數據（CSV或Excel格式），使用AI模型生成額外多元受測者的問卷回覆。
 
 ## 功能
 
-- 讀取現有問卷數據
+- 讀取現有問卷數據（支援 .csv, .xlsx, .xls 格式）
 - 分析回答模式和分佈
 - 檢查數據質量和提供報告
 - 生成符合原始數據特徵的模擬回覆
@@ -18,7 +18,11 @@
 2. 準備數據：將50位受測者的CSV數據文件放在`data`目錄
 3. 執行模擬：
    ```
-   python simulator.py --input data/survey_data.csv --output data/simulated_data.csv --count 100
+   python simulator.py --input data/survey_data.csv --output results/simulated_data.csv --count 100
+   ```
+   或者使用Excel檔案：
+   ```
+   python simulator.py --input data/survey_data.xlsx --output results/simulated_data.xlsx --count 100
    ```
 4. 進階選項：
    ```
@@ -36,8 +40,8 @@
 
 ## 參數說明
 
-- `--input`: 輸入CSV文件路徑（必須）
-- `--output`: 輸出CSV文件路徑（必須）
+- `--input`: 輸入數據文件路徑（.csv, .xlsx, .xls 格式，必須）
+- `--output`: 輸出數據文件路徑（.csv 或 .xlsx 格式，必須）
 - `--count`: 要生成的模擬樣本數量（默認100）
 - `--seed`: 隨機種子，用於確保結果可重現
 - `--no-visuals`: 添加此標誌以禁用視覺化報告生成

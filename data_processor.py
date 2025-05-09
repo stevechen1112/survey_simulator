@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from typing import Dict, List, Tuple, Any, Optional
 import warnings
+import os
 
 
 class DataProcessor:
@@ -17,15 +18,32 @@ class DataProcessor:
         self.data_quality_report = {}
     
     def load_data(self, file_path: str) -> None:
-        """讀取CSV格式的問卷數據"""
+        """讀取CSV、XLSX或XLS格式的問卷數據"""
         try:
-            self.data = pd.read_csv(file_path)
-            print(f"成功載入數據：{len(self.data)}條記錄，{len(self.data.columns)}個問題")
+            _, file_extension = os.path.splitext(file_path)
+            
+            if file_extension.lower() == '.csv':
+                self.data = pd.read_csv(file_path)
+            elif file_extension.lower() in ['.xlsx', '.xls']:
+                # 嘗試使用 openpyxl 引擎讀取 .xlsx
+                # 嘗試使用 xlrd 引擎讀取 .xls (如果已安裝)
+                try:
+                    self.data = pd.read_excel(file_path, engine='openpyxl' if file_extension.lower() == '.xlsx' else 'xlrd')
+                except Exception as e_excel:
+                    # 如果特定引擎失敗，嘗試讓 pandas 自動檢測引擎
+                    try:
+                        self.data = pd.read_excel(file_path)
+                    except Exception as e_auto_excel:
+                        raise Exception(f"使用特定引擎 ({'openpyxl' if file_extension.lower() == '.xlsx' else 'xlrd'}) 讀取 Excel 文件失敗: {e_excel}. 使用自動檢測引擎也失敗: {e_auto_excel}") 
+            else:
+                raise ValueError(f"不支援的文件格式: {file_extension}. 請提供 .csv, .xlsx, 或 .xls 文件。")
+            
+            print(f"成功載入數據：{len(self.data)}條記錄，{len(self.data.columns)}個問題 (來自 {file_path})")
             
             # 自動進行數據質量檢查
             self._check_data_quality()
         except Exception as e:
-            raise Exception(f"載入數據時出錯：{str(e)}")
+            raise Exception(f"載入數據時出錯 ({file_path}): {str(e)}")
     
     def _check_data_quality(self) -> None:
         """檢查數據質量，包括缺失值、重複值和一致性問題"""
